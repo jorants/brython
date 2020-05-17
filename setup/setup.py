@@ -4,60 +4,40 @@ from setuptools import setup, find_packages
 import os
 import shutil
 import sys
-
-this_dir = os.getcwd()
-root_dir = os.path.dirname(this_dir)
-release_dir = os.path.join(root_dir, "releases")
+import codecs
 
 
-LONG_DESCRIPTION = \
-"""With Brython you can write browser programs in Python instead of Javascript,
-by inserting Python code in an HTML page by::
+# From python.org, get the verison number
+def read(rel_path):
+    here = os.path.abspath(os.path.dirname(__file__))
+    with codecs.open(os.path.join(here, rel_path), 'r') as fp:
+        return fp.read()
 
-    <script type="text/python">
-    ...
-    </script>
+def get_version(rel_path):
+    for line in read(rel_path).splitlines():
+        if line.startswith('__version__'):
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    else:
+        raise RuntimeError("Unable to find version string.")
 
-Usage::
 
-    pip install brython
+# Load the readme file
+this_directory = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(this_directory, 'README.rst'), encoding='utf-8') as f:
+    long_description = f.read()
 
-Then in an empty folder::
 
-    python -m brython --install
 
-or in a folder with older versions already present::
-
-    python -m brython --update
-
-The package includes a page **demo.html** with examples of use. For more
-information see the `Brython site <http://brython.info>`_.
-"""
-
-# source of index.html
-html = """<!doctype html>
-<html>
-
-<head>
-<meta charset="utf-8">
-<script type="text/javascript" src="brython.js"></script>
-<script type="text/javascript" src="brython_stdlib.js"></script>
-</head>
-
-<body onload="brython(1)">
-<script type="text/python">
-from browser import document
-
-document <= "Hello"
-</script>
-</body>
-
-</html>"""
 
 
 command = sys.argv[1]
 
 if command == "sdist":
+    this_dir = os.getcwd()
+    root_dir = os.path.dirname(this_dir)
+    release_dir = os.path.join(root_dir, "releases")
+
     # before creating the distribution, copy files from other locations in
     # the repository
     print("copying files...")
@@ -111,10 +91,10 @@ if command == "sdist":
 setup(
     name='brython',
 
-    version='3.8.8',
+    version=get_version("brython/__init__.py"),
     description='Brython is an implementation of Python 3 running in the browser',
 
-    long_description=LONG_DESCRIPTION,
+    long_description=long_description,
 
     # The project's main homepage.
     url='http://brython.info',

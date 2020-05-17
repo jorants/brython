@@ -9,8 +9,6 @@ import argparse
 
 from . import implementation
 
-
-
 def main():
     parser = argparse.ArgumentParser()
 
@@ -85,9 +83,21 @@ def main():
             print('Brython can only be installed in an empty folder')
             import sys
             sys.exit()
+        import urllib.request,zipfile,io
 
-        for path in os.listdir(data_path):
-            shutil.copyfile(os.path.join(data_path, path), path)
+        latest_url = "https://github.com/brython-dev/brython/releases/latest"
+        redirect = urllib.request.urlopen(latest_url).geturl()
+        version = redirect.split("/")[-1]
+
+        zipurl = f"https://github.com/brython-dev/brython/releases/download/{version}/Brython-{version}.zip"
+        zipcontent = urllib.request.urlopen(zipurl).read()
+        zipobj = zipfile.ZipFile(io.BytesIO(zipcontent))
+
+        for filename in ["brython.js","brython_stdlib.js","unicode.txt"]:
+            fcontent = zipobj.read(f"Brython-{version}/{filename}")
+            with open(filename,"wb") as fp:
+                fp.write(fcontent)
+
 
     if args.update:
         print('Update Brython scripts to version {}'.format(implementation))
